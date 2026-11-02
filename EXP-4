@@ -1,0 +1,119 @@
+
+#include <WiFi.h>
+#include <WebServer.h>
+
+// Wi-Fi credentials
+const char* ssid = "Mokxi-Lab";
+const char* password = "breadboard";
+
+// Potentiometer pin
+const int potPin = 34;
+
+// Sensor reading
+int potValue = 0;
+
+// Create web server
+WebServer server(80);
+
+// Display webpage
+void handleRoot() {
+
+  // Read potentiometer
+  potValue = analogRead(potPin);
+
+  String html = "<!DOCTYPE html>";
+  html += "<html>";
+  html += "<head>";
+
+  html += "<title>ESP32 Sensor Monitoring</title>";
+
+  // Refresh every 2 seconds
+  html += "<meta http-equiv='refresh' content='2'>";
+
+  html += "<style>";
+
+  html += "body {";
+  html += "font-family: Arial;";
+  html += "text-align: center;";
+  html += "background-color: #eaf2f8;";
+  html += "padding: 40px;";
+  html += "}";
+
+  html += ".box {";
+  html += "background: white;";
+  html += "padding: 30px;";
+  html += "border-radius: 15px;";
+  html += "display: inline-block;";
+  html += "}";
+
+  html += "h1 {color: #154360;}";
+
+  html += "</style>";
+  html += "</head>";
+
+  html += "<body>";
+  html += "<div class='box'>";
+
+  html += "<h1>ESP32 Sensor Monitoring</h1>";
+  html += "<h2>Potentiometer Value</h2>";
+
+  html += "<h1>";
+  html += String(potValue);
+  html += "</h1>";
+
+  html += "<p>Sensor Range: 0 - 4095</p>";
+  html += "<p>Updated every 2 seconds</p>";
+
+  html += "</div>";
+  html += "</body>";
+  html += "</html>";
+
+  // Send webpage
+  server.send(200, "text/html", html);
+}
+
+// Setup
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(potPin, INPUT);
+
+  // Connect to Wi-Fi
+  Serial.println("Connecting to WiFi...");
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println();
+  Serial.println("WiFi Connected!");
+
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  // Register webpage
+  server.on("/", HTTP_GET, handleRoot);
+
+  // Start web server
+  server.begin();
+
+  Serial.println("Web Server Started!");
+}
+
+// Loop
+void loop() {
+
+  potValue = analogRead(potPin);
+
+  Serial.print("Potentiometer Value: ");
+  Serial.println(potValue);
+
+  // Handle browser requests
+  server.handleClient();
+
+  delay(100);
+}
