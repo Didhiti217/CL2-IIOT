@@ -1,0 +1,33 @@
+//CL2-----exp1
+//VCC(PM)----->3V3(ESP32)
+//SIG(PM)----->GPIO 34(ESP32)
+//GND(PM)----->GND(ESP 32)
+
+const int potPin = 34;    //our potentiometer is connected to pin 34
+int potValue = 0;         //store the potentiometer reading,intial=0
+ 
+void setup() {        
+  Serial.begin(115200);   
+  delay(1000);      //delay() pauses the program.(1000 miliseconds=1 sec)
+}
+//setup() runs only once when the ESP32 starts or resets
+//Serial is used to send text and values to the Serial Monitor
+//115200 is the communication speed, called the baud rate
+////in short---Allow the ESP32 to display messages on your computer
+
+void loop() {
+  potValue = analogRead(potPin);
+  //- analogRead() reads the voltage coming from the potentiometer
+  //potPin contains the pin number 34.The result is stored in potValue
+  //reading range-(0 and 4095)
+  //in short---Read the potentiometer and save its current value
+
+  Serial.print("Potentiometer Value: ");
+  Serial.println(potValue);
+
+  if (potValue > 2000) {
+    Serial.println("WARNING");
+  } //potValue > 2000 means is the reading greater than 2000? displays "warning"
+
+  delay(500); //waits for 0.5 sec--->ahain reads the value of PM
+}
